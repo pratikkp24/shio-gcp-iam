@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shio IAM</title>
+<link rel="icon" href="assets/aonami-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="brand"><img src="assets/aonami-mark.png" alt="" width="24" height="24"><span>Shio IAM</span><span class="org" id="orgName">northwind.example</span></div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="ask" aria-selected="true">Ask</button>
+    <button role="tab" data-tab="access">Access</button>
+    <button role="tab" data-tab="approvals">Approvals <span class="count" id="pendingCount" hidden></span></button>
+    <button role="tab" data-tab="ledger">Ledger</button>
+  </nav>
+  <div class="right">
+    <label class="as"><span class="eyebrow">Acting as</span>
+      <select id="actor" aria-label="Acting as"></select></label>
+    <button class="pill ghost" id="tourBtn">Guided demo</button>
+    <button class="icon" id="settingsBtn" aria-label="Settings">Aa</button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="view" id="view-ask" data-view="ask">
+    <div class="chat" id="chat" aria-live="polite"></div>
+    <div class="suggest" id="suggest"></div>
+    <form class="composer" id="composer">
+      <input id="q" autocomplete="off" placeholder="Ask about access, or ask for a change" aria-label="Your request">
+      <button class="pill" type="submit">Send</button>
+    </form>
+  </section>
+
+  <section class="view" id="view-access" data-view="access" hidden>
+    <div class="split">
+      <aside class="tree" id="tree" aria-label="Resources"></aside>
+      <div class="detail" id="resDetail"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-approvals" data-view="approvals" hidden>
+    <div class="filters" role="group" aria-label="Filter">
+      <button class="chip on" data-filter="all">All</button>
+      <button class="chip" data-filter="PENDING">Waiting</button>
+      <button class="chip" data-filter="APPLIED">Applied</button>
+      <button class="chip" data-filter="REJECTED">Rejected</button>
+    </div>
+    <div id="approvalList"></div>
+  </section>
+
+  <section class="view" id="view-ledger" data-view="ledger" hidden>
+    <div class="ledger-head">
+      <p class="muted" id="ledgerSummary"></p>
+      <button class="pill ghost" id="verifyBtn">Verify chain</button>
+    </div>
+    <table class="table" id="ledgerTable"><thead><tr><th>#</th><th>Kind</th><th>What</th><th>Who</th><th>Hash</th></tr></thead><tbody></tbody></table>
+  </section>
+</main>
+
+<footer class="foot">Built on sample data: a fictional company, Northwind Labs, and its Google Cloud org. Answers and proposals replay recorded runs of iam.shio. <button class="link" id="aboutBtn">How it works</button></footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="sheet-head"><h2 id="sheetTitle"></h2><button class="icon" id="sheetClose" aria-label="Close">×</button></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</aside>
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="tour" id="tour" hidden role="dialog" aria-label="Guided demo">
+  <p class="eyebrow" id="tourStep"></p><p id="tourText"></p>
+  <div class="tour-btns"><button class="link" id="tourExit">Exit</button><span></span>
+    <button class="pill ghost" id="tourBack">Back</button><button class="pill" id="tourNext">Next</button></div>
+</div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

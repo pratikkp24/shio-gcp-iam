@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shio-iam"
+version = "0.1.0"
+description = "Google Cloud IAM in plain English: a model reads the request, Shio checks decide, a second person approves, then the policy is written"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+dependencies = ["shio-lang[regulated]>=1.0.0rc1"]
+
+[project.optional-dependencies]
+slack = ["slack_sdk>=3.27"]
+dev = ["pytest"]
+
+[project.scripts]
+shio-iam = "shio_iam.cli:main"
+
+[tool.setuptools]
+packages = ["shio_iam"]
+
+[tool.setuptools.package-data]
+shio_iam = ["*.shio", "*.json"]

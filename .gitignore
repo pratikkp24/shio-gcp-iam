@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.shio-iam/
+.venv/
+__pycache__/
+*.egg-info/
+shio-traces/
+build/
+.pytest_cache/

@@ -1,0 +1,119 @@
+[
+ {
+  "request": "give Priya Raman read access to the billing dataset for two weeks",
+  "seconds": 23,
+  "action": "APPLY",
+  "reading": {
+   "intent": "grant",
+   "principals": [
+    "priya.raman@northwind.example"
+   ],
+   "except_principals": [],
+   "access": "read",
+   "role": "roles/bigquery.dataViewer",
+   "resource": "//bigquery.googleapis.com/projects/nw-billing-prod/datasets/billing",
+   "days": 14,
+   "permission": "",
+   "asked_role": "",
+   "asked_principal": ""
+  },
+  "why": null,
+  "lines": [
+   "+ roles/bigquery.dataViewer  user:priya.raman@northwind.example  if request.time < timestamp(\"2026-11-06T05:24:08Z\")"
+  ]
+ },
+ {
+  "request": "give Priya Shah read access to product_events for 30 days",
+  "seconds": 10,
+  "action": "APPLY",
+  "reading": {
+   "intent": "grant",
+   "principals": [
+    "priya.shah@northwind.example"
+   ],
+   "except_principals": [],
+   "access": "read",
+   "role": "roles/bigquery.dataViewer",
+   "resource": "//bigquery.googleapis.com/projects/nw-analytics/datasets/product_events",
+   "days": 30,
+   "permission": "",
+   "asked_role": "",
+   "asked_principal": ""
+  },
+  "why": null,
+  "lines": [
+   "+ roles/bigquery.dataViewer  user:priya.shah@northwind.example  if request.time < timestamp(\"2026-11-22T05:24:31Z\")"
+  ]
+ },
+ {
+  "request": "who can delete buckets in prod?",
+  "seconds": 9,
+  "action": "ANSWER",
+  "reading": {
+   "intent": "question",
+   "principals": [],
+   "except_principals": [],
+   "access": "",
+   "role": "",
+   "resource": "//cloudresourcemanager.googleapis.com/folders/310000000001",
+   "days": 0,
+   "permission": "storage.buckets.delete",
+   "asked_role": "",
+   "asked_principal": ""
+  },
+  "why": null,
+  "lines": []
+ },
+ {
+  "request": "remove everyone's Owner role except the break-glass account",
+  "seconds": 7,
+  "action": "APPLY",
+  "reading": {
+   "intent": "revoke",
+   "principals": [
+    "*"
+   ],
+   "except_principals": [
+    "breakglass-admin@northwind.example"
+   ],
+   "access": "",
+   "role": "roles/owner",
+   "resource": "",
+   "days": 0,
+   "permission": "",
+   "asked_role": "",
+   "asked_principal": ""
+  },
+  "why": null,
+  "lines": [
+   "- roles/owner  user:dan.okafor@northwind.example",
+   "- roles/owner  user:sam.chen@northwind.example",
+   "- roles/owner  user:dan.okafor@northwind.example",
+   "- roles/owner  serviceAccount:terraform@nw-ops.iam.gserviceaccount.com",
+   "- roles/owner  user:ines.moreau@northwind.example",
+   "- roles/owner  user:dan.okafor@northwind.example",
+   "- roles/owner  user:sam.chen@northwind.example",
+   "- roles/owner  user:sam.chen@northwind.example",
+   "- roles/owner  serviceAccount:terraform@nw-ops.iam.gserviceaccount.com"
+  ]
+ },
+ {
+  "request": "give Priya read access to the billing dataset for two weeks",
+  "seconds": 11,
+  "action": "CLARIFY",
+  "reading": {
+   "intent": "grant",
+   "principals": [],
+   "except_principals": [],
+   "access": "read",
+   "role": "roles/bigquery.dataViewer",
+   "resource": "//bigquery.googleapis.com/projects/nw-billing-prod/datasets/billing",
+   "days": 14,
+   "permission": "",
+   "asked_role": "",
+   "asked_principal": ""
+  },
+  "why": null,
+  "lines": []
+ }
+]
