@@ -1,8 +1,8 @@
 """Approvals and the record: who may approve a proposed change, the sign-off, and the strict check apply relies on.
 
-Every proposal is a record in a signed, hash-chained Shio ledger (SHIO_IAM_HOME/records/ledger.jsonl). A person
+Every proposal is a record in a signed, hash-chained Shio ledger (SHIO_GCP_IAM_HOME/records/ledger.jsonl). A person
 approves it with a sign-off entry in the same ledger. Shio enforces maker-checker (the requester can't approve their
-own change); shio-iam adds who may approve at all (a member of the approvers group in the org's directory; a security
+own change); shio-gcp-iam adds who may approve at all (a member of the approvers group in the org's directory; a security
 admin as well for a change that widens someone's power or may break a workload).
 
 Shio's own ledger verifier currently accepts sign-off entries that carry no signature (an open finding of its security
@@ -27,7 +27,7 @@ class ApprovalRefused(Exception):
 
 
 def home():
-    return Path(os.environ.get("SHIO_IAM_HOME", ".shio-iam"))
+    return Path(os.environ.get("SHIO_GCP_IAM_HOME", ".shio-gcp-iam"))
 
 
 def records():
@@ -35,7 +35,7 @@ def records():
 
 
 def ensure_keys():
-    """A signing key for this workspace's ledger, made on first use (SHIO_IAM_HOME/keys, git-ignored). An existing
+    """A signing key for this workspace's ledger, made on first use (SHIO_GCP_IAM_HOME/keys, git-ignored). An existing
     SHIO_SIGNING_KEY is used as is."""
     if os.environ.get("SHIO_SIGNING_KEY"):
         return os.environ["SHIO_SIGNING_KEY"]
@@ -137,7 +137,7 @@ def approved(record_path, org=None):
     for e in signoffs:
         state = ledger._check_signature(e, pub)
         if state != "ok":
-            return no(f"a sign-off by {e.get('signer')} is {state}: shio-iam accepts only signed sign-offs")
+            return no(f"a sign-off by {e.get('signer')} is {state}: shio-gcp-iam accepts only signed sign-offs")
     status, needed, decided = waiting_for(path)
     if status != "APPROVED":
         return no(f"the change is {status}" + (f"; waiting for {', '.join(needed)}" if needed else ""))

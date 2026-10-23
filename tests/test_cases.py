@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 import shio
 
-from shio_iam import engine, models
+from shio_gcp_iam import engine, models
 
 CASES = json.loads((Path(__file__).parent / "cases.json").read_text())
 

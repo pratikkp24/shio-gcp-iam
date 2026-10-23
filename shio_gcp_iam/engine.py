@@ -1,6 +1,6 @@
 """Running iam.shio: ask a question or propose a change, approve it, apply it. Each step is a signed record.
 
-    from shio_iam import engine
+    from shio_gcp_iam import engine
     out, record = engine.ask("give Priya Raman read access to the billing dataset for two weeks", "dan.okafor@northwind.example")
     engine.approve(record, "sam.chen@northwind.example")
     out, _ = engine.apply(record)
@@ -20,7 +20,7 @@ _PROGRAM = None
 def program():
     global _PROGRAM
     if _PROGRAM is None:
-        _PROGRAM = shio.load(HERE / "iam.shio", name="shio_iam_program")
+        _PROGRAM = shio.load(HERE / "iam.shio", name="shio_gcp_iam_program")
     return _PROGRAM
 
 
@@ -44,7 +44,7 @@ def approve(record, by, note="", reject=False):
     return approvals.approve(record, by, note=note, reject=reject)
 
 
-def apply(record, planner=None, actor="shio-iam"):
+def apply(record, planner=None, actor="shio-gcp-iam"):
     """Write an approved change. -> (outcome, record path of the apply run)."""
     setup()
     shio.configure(str(approvals.records()), actor=actor, signer=ledger.load_signer())

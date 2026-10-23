@@ -1,4 +1,4 @@
-# shio-iam: Google Cloud IAM in plain English. The model reads what the person asks for; code decides whether the
+# shio-gcp-iam: Google Cloud IAM in plain English. The model reads what the person asks for; code decides whether the
 # change is safe and works out the exact policy edit; a person approves; only then does a rule write the policy,
 # through Shio Guard. Questions ("who can delete buckets in prod?") are answered from the policies, not the model.
 #
@@ -7,8 +7,8 @@
 
 import datetime as dt
 
-from shio_iam import catalogue, rules, tools
-from shio_iam.connectors import connect, ConnectorError
+from shio_gcp_iam import catalogue, rules, tools
+from shio_gcp_iam.connectors import connect, ConnectorError
 
 tool directory_list() reads trusted = tools.directory_list
 tool resource_list() reads trusted = tools.resource_list

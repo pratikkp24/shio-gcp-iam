@@ -1,8 +1,8 @@
 """Approval cards in Slack: a pending change posts a card with Approve and Reject; a click becomes a sign-off only if
 the clicker's Slack email is an approver in the org's directory (and is not the person who asked).
 
-Mock by default: cards are written to SHIO_IAM_HOME/slack-outbox.jsonl and clicks are simulated with
-`shio-iam approve`. Live with SLACK_BOT_TOKEN and SLACK_APP_TOKEN in .env (Socket Mode, `pip install slack_sdk`),
+Mock by default: cards are written to SHIO_GCP_IAM_HOME/slack-outbox.jsonl and clicks are simulated with
+`shio-gcp-iam approve`. Live with SLACK_BOT_TOKEN and SLACK_APP_TOKEN in .env (Socket Mode, `pip install slack_sdk`),
 posting to SLACK_CHANNEL. The live path follows Slack's documented API but has not been run against a workspace.
 """
 import json
@@ -28,9 +28,9 @@ def card(record, decided, pending):
         {"type": "section", "text": {"type": "mrkdwn", "text": text}},
         {"type": "actions", "elements": [
             {"type": "button", "text": {"type": "plain_text", "text": "Approve"}, "style": "primary",
-             "action_id": "shio_iam_approve", "value": str(record)},
+             "action_id": "shio_gcp_iam_approve", "value": str(record)},
             {"type": "button", "text": {"type": "plain_text", "text": "Reject"}, "style": "danger",
-             "action_id": "shio_iam_reject", "value": str(record)}]},
+             "action_id": "shio_gcp_iam_reject", "value": str(record)}]},
     ]
 
 
@@ -65,12 +65,12 @@ def listen():
             return
         p = req.payload
         act = (p.get("actions") or [{}])[0]
-        if act.get("action_id") not in ("shio_iam_approve", "shio_iam_reject"):
+        if act.get("action_id") not in ("shio_gcp_iam_approve", "shio_gcp_iam_reject"):
             return
         email = web.users_info(user=p["user"]["id"])["user"]["profile"].get("email", "")
         record = act["value"]
         try:
-            res = engine.approve(record, email, reject=act["action_id"] == "shio_iam_reject")
+            res = engine.approve(record, email, reject=act["action_id"] == "shio_gcp_iam_reject")
             msg = f'{res["decision"]} by {email} as {res["role"]}: now {res["status"]}'
             if res["status"] == "APPROVED":
                 out, _ = engine.apply(record)

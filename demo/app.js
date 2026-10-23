@@ -1,4 +1,4 @@
-/* Shio IAM demo. A frontend mock: it replays outcomes recorded from iam.shio (data.js) and keeps approvals, policy
+/* Shio-GCP-IAM demo. A frontend mock: it replays outcomes recorded from iam.shio (data.js) and keeps approvals, policy
    changes and a hash-chained ledger in this browser tab. No backend, no model calls. */
 (function () {
   "use strict";
@@ -255,13 +255,13 @@
     for (const d of ch.run.outcome.diff) {
       if (JSON.stringify(S.policies[d.resource]) !== JSON.stringify(d.before)) {
         ch.status = "NOT APPLIED"; ch.applied = `the policy on ${d.display} changed since this was proposed; ask again`;
-        await record("apply", ch.request, "shio-iam", { result: "NOT APPLIED" });
+        await record("apply", ch.request, "shio-gcp-iam", { result: "NOT APPLIED" });
         toast("Not applied: the policy changed since it was proposed"); return;
       }
     }
     for (const d of ch.run.outcome.diff) S.policies[d.resource] = clone(d.after);
     ch.status = "APPLIED"; ch.applied = `${ch.run.outcome.diff.length} polic${ch.run.outcome.diff.length > 1 ? "ies" : "y"} written`;
-    await record("apply", ch.request, "shio-iam", { result: "APPLIED", resources: ch.run.outcome.diff.map((d) => d.resource) });
+    await record("apply", ch.request, "shio-gcp-iam", { result: "APPLIED", resources: ch.run.outcome.diff.map((d) => d.resource) });
     toast("Approved and applied");
   }
 
@@ -396,7 +396,7 @@
   function setPref(k, v) {
     if (k === "reader") { S.reader = v; toast(v === "fooled" ? "Reader: fooled by the planted description" : "Reader: recorded reader"); return; }
     if (v) $("html").dataset[k] = v; else delete $("html").dataset[k];
-    try { localStorage.setItem("shio-iam-" + k, v); } catch (e) { /* storage may be blocked */ }
+    try { localStorage.setItem("shio-gcp-iam-" + k, v); } catch (e) { /* storage may be blocked */ }
   }
 
   function about() {
@@ -446,7 +446,7 @@
 
   // -- wiring ------------------------------------------------------------------------------------------------------
   function init() {
-    try { for (const k of ["theme", "size", "motion"]) { const v = localStorage.getItem("shio-iam-" + k); if (v) $("html").dataset[k] = v; } } catch (e) { /* ignore */ }
+    try { for (const k of ["theme", "size", "motion"]) { const v = localStorage.getItem("shio-gcp-iam-" + k); if (v) $("html").dataset[k] = v; } } catch (e) { /* ignore */ }
     $("#actor").innerHTML = D.personas.map((p) => `<option value="${esc(p)}">${esc(nameOf(p))} · ${esc((person(p) || {}).title || "")}</option>`).join("");
     $("#actor").value = S.actor;
     renderSuggest(); hello(); renderLedger();

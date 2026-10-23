@@ -9,7 +9,7 @@ import shio
 from shio import ledger
 from shio.compiler import ShioError, compile_source
 
-from shio_iam import approvals, engine, models, tools
+from shio_gcp_iam import approvals, engine, models, tools
 from conftest import DAN, MARIA, SAM
 
 GRANT = "give Priya Raman read access to the billing dataset for two weeks"
@@ -127,7 +127,7 @@ def test_escalation_needs_a_security_admin_too(org):
 
 
 def test_an_unsigned_signoff_is_not_trusted(org):
-    """Shio's verifier accepts unsigned sign-off entries (open finding L1); shio-iam refuses them."""
+    """Shio's verifier accepts unsigned sign-off entries (open finding L1); shio-gcp-iam refuses them."""
     record = Path(proposed(org))
     entries = ledger._entries(record.parent)
     rec_entry = next(e for e in entries if e.get("file") == record.name)
@@ -156,7 +156,7 @@ def test_a_policy_changed_since_approval_is_not_overwritten(org):
     engine.approve(record, SAM)
     other = proposed(org, "give Priya Shah read access to product_events for 30 days")
     engine.approve(other, SAM)
-    # someone edits the billing dataset's policy outside shio-iam
+    # someone edits the billing dataset's policy outside shio-gcp-iam
     org._policies[BILLING].append({"role": "roles/bigquery.dataViewer", "members": ["user:ines.moreau@northwind.example"]})
     out, _ = engine.apply(record)
     assert out["action"] == "NOT APPLIED" and "changed since" in out["why"][0], out

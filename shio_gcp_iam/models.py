@@ -1,4 +1,4 @@
-"""Which model reads the request. Pick with SHIO_IAM_MODEL:
+"""Which model reads the request. Pick with SHIO_GCP_IAM_MODEL:
 
     scripted      (default) recorded answers for the demo requests: no model, no key, no network
     claude-cli    the `claude` CLI already logged in on this machine (Claude Code); nothing to configure
@@ -106,19 +106,19 @@ def load_env(path=".env"):
 
 
 def chosen(kind=None):
-    """-> (reader model, planner model) for SHIO_IAM_MODEL (or `kind`)."""
-    kind = kind or os.environ.get("SHIO_IAM_MODEL", "scripted")
+    """-> (reader model, planner model) for SHIO_GCP_IAM_MODEL (or `kind`)."""
+    kind = kind or os.environ.get("SHIO_GCP_IAM_MODEL", "scripted")
     if kind == "scripted":
         return scripted(), scripted_planner()
     if kind == "claude-cli":
-        m = ClaudeCLI(os.environ.get("SHIO_IAM_CLAUDE_MODEL"))
+        m = ClaudeCLI(os.environ.get("SHIO_GCP_IAM_CLAUDE_MODEL"))
         return m, m
     if kind == "anthropic":
         if not os.environ.get("ANTHROPIC_API_KEY"):
-            raise SystemExit("SHIO_IAM_MODEL=anthropic needs ANTHROPIC_API_KEY (put it in .env, which git ignores)")
-        m = shio.models.anthropic(os.environ.get("SHIO_IAM_ANTHROPIC_MODEL", "claude-opus-5-5"))
+            raise SystemExit("SHIO_GCP_IAM_MODEL=anthropic needs ANTHROPIC_API_KEY (put it in .env, which git ignores)")
+        m = shio.models.anthropic(os.environ.get("SHIO_GCP_IAM_ANTHROPIC_MODEL", "claude-opus-5-5"))
         return m, m
     if kind.startswith("ollama:"):
         m = shio.models.ollama(kind.split(":", 1)[1])
         return m, m
-    raise SystemExit(f"unknown SHIO_IAM_MODEL {kind!r}: use scripted, claude-cli, anthropic or ollama:NAME")
+    raise SystemExit(f"unknown SHIO_GCP_IAM_MODEL {kind!r}: use scripted, claude-cli, anthropic or ollama:NAME")

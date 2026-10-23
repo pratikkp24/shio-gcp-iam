@@ -4,8 +4,8 @@ import json
 import pytest
 import shio
 
-from shio_iam import catalogue, rules
-from shio_iam.connectors import ConnectorError, GcloudOrg, condition_holds
+from shio_gcp_iam import catalogue, rules
+from shio_gcp_iam.connectors import ConnectorError, GcloudOrg, condition_holds
 from conftest import NOW
 
 PROJECTS = [{"projectId": "acme-prod", "parent": {"type": "folder", "id": "77"}, "labels": {}}]
@@ -58,7 +58,7 @@ def test_policy_analyzer_output_is_parsed():
 
 def test_writes_to_a_real_org_are_off_by_default(monkeypatch):
     g = GcloudOrg(org_id="", runner=fake([]))
-    monkeypatch.delenv("SHIO_IAM_ALLOW_APPLY", raising=False)
+    monkeypatch.delenv("SHIO_GCP_IAM_ALLOW_APPLY", raising=False)
     with pytest.raises(ConnectorError):
         g._write("//cloudresourcemanager.googleapis.com/projects/acme-prod", [], "BwX1")
     with pytest.raises(shio.BoundaryError):

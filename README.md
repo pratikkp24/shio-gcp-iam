@@ -1,8 +1,8 @@
-# shio-iam
+# Shio-GCP-IAM
 
 Google Cloud IAM in plain English. You ask a question or ask for a change. A model reads the request, code decides whether the change is safe, a second person approves, and only then is the policy written. It is built on [Shio](https://github.com/pratikkp24/shio), Aonami Labs' agent language. Licensed under Apache-2.0.
 
-Output from a clean install (`shio-iam chat`, sample org, scripted reader):
+Output from a clean install (`shio-gcp-iam chat`, sample org, scripted reader):
 
 ```
 > give Priya read access to the billing dataset for two weeks
@@ -30,14 +30,14 @@ It runs with no Google Cloud account against **Northwind Labs**, a fictional org
 You need Python 3.10 or newer.
 
 ```bash
-git clone https://github.com/pratikkp24/shio-iam && cd shio-iam
+git clone https://github.com/pratikkp24/shio-gcp-iam && cd shio-gcp-iam
 python3 -m venv .venv && . .venv/bin/activate
 pip install --pre -e .
-shio-iam init
-shio-iam chat --as dan.okafor@northwind.example
+shio-gcp-iam init
+shio-gcp-iam chat --as dan.okafor@northwind.example
 ```
 
-`init` creates `.shio-iam/` in the current folder, which holds the sample org's state, a signing key and the records. It also writes `.env.example`. Both `.env` and `.shio-iam/` are git-ignored.
+`init` creates `.shio-gcp-iam/` in the current folder, which holds the sample org's state, a signing key and the records. It also writes `.env.example`. Both `.env` and `.shio-gcp-iam/` are git-ignored.
 
 In `chat`, try:
 - `who can delete buckets in prod?`
@@ -48,12 +48,12 @@ In `chat`, try:
 The same steps work one at a time:
 
 ```bash
-shio-iam ask "give Priya Raman read access to the billing dataset for two weeks" --as dan.okafor@northwind.example
-shio-iam pending
-shio-iam approve <id> --as sam.chen@northwind.example --apply
-shio-iam verify          # check the signed ledger
-shio-iam reset           # put the sample org back
-shio-iam doctor          # show how this workspace is set up
+shio-gcp-iam ask "give Priya Raman read access to the billing dataset for two weeks" --as dan.okafor@northwind.example
+shio-gcp-iam pending
+shio-gcp-iam approve <id> --as sam.chen@northwind.example --apply
+shio-gcp-iam verify          # check the signed ledger
+shio-gcp-iam reset           # put the sample org back
+shio-gcp-iam doctor          # show how this workspace is set up
 ```
 
 **Sample people.** Dan Okafor is a platform engineer and asks for things. Sam Chen is in `iam-approvers`. Maria Lopez is in `iam-approvers` and `security-admins`. Priya Raman, Priya Shah, Lee Wong (a contractor) and Ines Moreau (SRE) approve nothing.
@@ -62,11 +62,11 @@ shio-iam doctor          # show how this workspace is set up
 
 ## Which model reads the request
 
-Set `SHIO_IAM_MODEL` in `.env`:
+Set `SHIO_GCP_IAM_MODEL` in `.env`:
 
 | Value | What it uses | Needs |
 |---|---|---|
-| `scripted` (default) | Recorded readings for the requests listed in `shio_iam/scripted.json`. Anything else is read as "unclear" and refused. | Nothing |
+| `scripted` (default) | Recorded readings for the requests listed in `shio_gcp_iam/scripted.json`. Anything else is read as "unclear" and refused. | Nothing |
 | `claude-cli` | The `claude` command (Claude Code) already logged in on your machine | Claude Code |
 | `anthropic` | The Anthropic API | `ANTHROPIC_API_KEY` in `.env` |
 | `ollama:NAME` | A local model, e.g. `ollama:qwen3:8b` | Ollama |
@@ -75,7 +75,7 @@ Use `scripted` to try the flow. Use a real model to type your own requests.
 
 ## How it decides
 
-The program is [`shio_iam/iam.shio`](shio_iam/iam.shio). In Shio, a model's output is a **reading**: only a `check` or a `rule` can look at it, and the compiler refuses any other use.
+The program is [`shio_gcp_iam/iam.shio`](shio_gcp_iam/iam.shio). In Shio, a model's output is a **reading**: only a `check` or a `rule` can look at it, and the compiler refuses any other use.
 
 1. **Read.** The model gets the request, the directory, the resource list, the role list, and the resources' labels and descriptions. It returns a structured reading with these fields: intent, principals, access, role, resource and days. Labels and descriptions come through a tool declared `reads untrusted`, because anyone who can edit a resource can write them.
 2. **Check.** Code works out from the request text and the org's data what the request can mean, then compares the reading against it:
@@ -153,8 +153,8 @@ pytest tests/test_cases.py -s        # prints the score table: 32/32
 ## Connecting a real org (read-only)
 
 ```bash
-gcloud auth login                    # your own credentials; shio-iam never reads or stores a key
-SHIO_IAM_MODE=gcloud SHIO_IAM_ORG=123456789012 SHIO_IAM_PROJECTS=proj-a,proj-b shio-iam chat --as you@yourco.com
+gcloud auth login                    # your own credentials; shio-gcp-iam never reads or stores a key
+SHIO_GCP_IAM_MODE=gcloud SHIO_GCP_IAM_ORG=123456789012 SHIO_GCP_IAM_PROJECTS=proj-a,proj-b shio-gcp-iam chat --as you@yourco.com
 ```
 
 **What it reads:**
@@ -163,15 +163,15 @@ SHIO_IAM_MODE=gcloud SHIO_IAM_ORG=123456789012 SHIO_IAM_PROJECTS=proj-a,proj-b s
 - service accounts;
 - Policy Analyzer (`gcloud asset analyze-iam-policy`, which needs the Cloud Asset API).
 
-**The directory.** Without `SHIO_IAM_DIRECTORY` (a JSON export of people and groups), the directory is only the principals already in policies plus the service accounts gcloud lists. A person who holds no role yet can't be found, and the check fails closed.
+**The directory.** Without `SHIO_GCP_IAM_DIRECTORY` (a JSON export of people and groups), the directory is only the principals already in policies plus the service accounts gcloud lists. A person who holds no role yet can't be found, and the check fails closed.
 
-**Writing to a real org.** This needs `SHIO_IAM_ALLOW_APPLY=1` as well as an approved change. Writes are supported for projects, folders, the organization and buckets. BigQuery dataset policies are not read or written in gcloud mode yet.
+**Writing to a real org.** This needs `SHIO_GCP_IAM_ALLOW_APPLY=1` as well as an approved change. Writes are supported for projects, folders, the organization and buckets. BigQuery dataset policies are not read or written in gcloud mode yet.
 
 ## Limits, honestly
 
 - **The gcloud connector has not been run against a live org.** It is tested only against canned `gcloud` output. The Slack live path follows Slack's documented API (Socket Mode) but has not been run against a workspace. Only the mock is exercised end to end.
 - **The mock role catalogue is abridged:** about 20 real roles, each with a real subset of its permissions. A real org reads the full role definitions. For scale, Google's own docs say only "hundreds" of predefined roles. A dated third-party snapshot (iam-dataset, 18 Oct 2026) counts 2,422 predefined roles and 10,129 permissions. See [`docs/RESEARCH.md`](docs/RESEARCH.md).
-- **Deny policies.** In gcloud mode, Google's Policy Analyzer ignores deny policies, and shio-iam does not yet read deny policies from a real org. Answers there cover allow policies only. The mock evaluates its deny policy.
+- **Deny policies.** In gcloud mode, Google's Policy Analyzer ignores deny policies, and shio-gcp-iam does not yet read deny policies from a real org. Answers there cover allow policies only. The mock evaluates its deny policy.
 - **Conditions.** The only condition this tool writes or evaluates is `request.time < timestamp(...)`. Any other condition is treated as possibly granting, so answers may over-report and never under-report. Durations are counted in whole days.
 - **Resolving names.** Matching names in the request is word-based. Phrasing it doesn't know ("my team", "the finance bucket") fails closed with a reason. It never guesses.
 - **Shio's own open issues.** Shio's 1.0 security review has open findings in parts this tool uses:
@@ -180,26 +180,26 @@ SHIO_IAM_MODE=gcloud SHIO_IAM_ORG=123456789012 SHIO_IAM_PROJECTS=proj-a,proj-b s
   - Guard's grounding of values is a substring match.
   - Guard's four-eyes rule needs a requester to be passed in.
 
-  shio-iam works around the ones it can:
+  shio-gcp-iam works around the ones it can:
   - It accepts only sign-offs signed by the ledger key.
   - It re-verifies the chain before every apply.
   - It checks principals by exact match against the directory, not by Guard's grounding.
   - It enforces four eyes through ledger maker-checker.
 
-  Don't treat the ledger or Guard as proven until those are fixed upstream. Anchor the ledger head (`shio-iam verify` prints it) somewhere the key holder can't rewrite.
+  Don't treat the ledger or Guard as proven until those are fixed upstream. Anchor the ledger head (`shio-gcp-iam verify` prints it) somewhere the key holder can't rewrite.
 - **Identity.** `--as` is whoever you say you are. In a company it must come from SSO, and approvals must come from an authenticated channel, such as a Slack user's verified email.
 
 ## Files
 
 | Path | What it is |
 |---|---|
-| `shio_iam/iam.shio` | The program: tools, the reading, every check, the rule, sign-off, apply |
-| `shio_iam/rules.py` | The code that decides: name and resource resolution, least privilege, the plan, diff, breaking changes, answers |
-| `shio_iam/catalogue.py` | Roles, escalation permissions, the narrowest role for each kind of access |
-| `shio_iam/connectors.py` | `MockOrg` (Northwind Labs) and `GcloudOrg` (read-only gcloud), and the one guarded write |
-| `shio_iam/sample_org.py` | The fictional org, with planted risks and an injection in a dataset description |
-| `shio_iam/approvals.py`, `slack.py` | Who may approve, sign-offs, the strict check before apply, Slack cards |
-| `shio_iam/cli.py`, `engine.py`, `models.py` | The `shio-iam` command, running the program, choosing a model |
+| `shio_gcp_iam/iam.shio` | The program: tools, the reading, every check, the rule, sign-off, apply |
+| `shio_gcp_iam/rules.py` | The code that decides: name and resource resolution, least privilege, the plan, diff, breaking changes, answers |
+| `shio_gcp_iam/catalogue.py` | Roles, escalation permissions, the narrowest role for each kind of access |
+| `shio_gcp_iam/connectors.py` | `MockOrg` (Northwind Labs) and `GcloudOrg` (read-only gcloud), and the one guarded write |
+| `shio_gcp_iam/sample_org.py` | The fictional org, with planted risks and an injection in a dataset description |
+| `shio_gcp_iam/approvals.py`, `slack.py` | Who may approve, sign-offs, the strict check before apply, Slack cards |
+| `shio_gcp_iam/cli.py`, `engine.py`, `models.py` | The `shio-gcp-iam` command, running the program, choosing a model |
 | `docs/RESEARCH.md` | IAM pain points and existing tools, with sources |
 | `demo/` | The frontend mock |
 

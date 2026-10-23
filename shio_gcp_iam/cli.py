@@ -1,11 +1,11 @@
-"""shio-iam: Google Cloud IAM in plain English, with checks and a second person before anything changes.
+"""shio-gcp-iam: Google Cloud IAM in plain English, with checks and a second person before anything changes.
 
-    shio-iam init                                    set up a workspace here (.shio-iam/), sample org, signing key
-    shio-iam chat --as dan.okafor@northwind.example  ask and approve in the terminal
-    shio-iam ask "who can delete buckets in prod?" --as dan.okafor@northwind.example
-    shio-iam approve <record> --as sam.chen@northwind.example
-    shio-iam apply <record>
-    shio-iam pending | verify | doctor | reset
+    shio-gcp-iam init                                    set up a workspace here (.shio-gcp-iam/), sample org, signing key
+    shio-gcp-iam chat --as dan.okafor@northwind.example  ask and approve in the terminal
+    shio-gcp-iam ask "who can delete buckets in prod?" --as dan.okafor@northwind.example
+    shio-gcp-iam approve <record> --as sam.chen@northwind.example
+    shio-gcp-iam apply <record>
+    shio-gcp-iam pending | verify | doctor | reset
 """
 import argparse
 import json
@@ -20,19 +20,19 @@ GREEN, RED, YELLOW, DIM, BOLD, END = "\033[32m", "\033[31m", "\033[33m", "\033[2
 if not sys.stdout.isatty() or os.environ.get("NO_COLOR"):
     GREEN = RED = YELLOW = DIM = BOLD = END = ""
 
-ENV_EXAMPLE = """# shio-iam settings. Copy to .env (git-ignored). Never commit real tokens.
+ENV_EXAMPLE = """# shio-gcp-iam settings. Copy to .env (git-ignored). Never commit real tokens.
 # Who you are when you ask (an email in your org's directory):
-SHIO_IAM_USER=dan.okafor@northwind.example
+SHIO_GCP_IAM_USER=dan.okafor@northwind.example
 # Which model reads requests: scripted (no model, demo requests only), claude-cli, anthropic, ollama:qwen3:8b
-SHIO_IAM_MODEL=scripted
+SHIO_GCP_IAM_MODEL=scripted
 # ANTHROPIC_API_KEY=
 # A real org instead of the Northwind Labs mock (read-only; uses your own `gcloud auth login`):
-# SHIO_IAM_MODE=gcloud
-# SHIO_IAM_ORG=123456789012
-# SHIO_IAM_PROJECTS=my-project-a,my-project-b
-# SHIO_IAM_DIRECTORY=directory.json
+# SHIO_GCP_IAM_MODE=gcloud
+# SHIO_GCP_IAM_ORG=123456789012
+# SHIO_GCP_IAM_PROJECTS=my-project-a,my-project-b
+# SHIO_GCP_IAM_DIRECTORY=directory.json
 # Writing to a real org also needs this, and an approved change:
-# SHIO_IAM_ALLOW_APPLY=1
+# SHIO_GCP_IAM_ALLOW_APPLY=1
 # Slack approval cards (Socket Mode):
 # SLACK_BOT_TOKEN=
 # SLACK_APP_TOKEN=
@@ -51,9 +51,9 @@ def find_record(ref):
 
 
 def who(args):
-    w = getattr(args, "as_", None) or os.environ.get("SHIO_IAM_USER")
+    w = getattr(args, "as_", None) or os.environ.get("SHIO_GCP_IAM_USER")
     if not w:
-        raise SystemExit("say who you are: --as you@yourdomain (or SHIO_IAM_USER in .env)")
+        raise SystemExit("say who you are: --as you@yourdomain (or SHIO_GCP_IAM_USER in .env)")
     return w
 
 
@@ -98,12 +98,12 @@ def cmd_init(args):
         Path(".env.example").write_text(ENV_EXAMPLE)
     gi = Path(".gitignore")
     lines = gi.read_text().splitlines() if gi.exists() else []
-    add = [x for x in (".env", ".shio-iam/") if x not in lines]
+    add = [x for x in (".env", ".shio-gcp-iam/") if x not in lines]
     if add:
         gi.write_text("\n".join(lines + add) + "\n")
     print(f"workspace: {home.resolve()}  (signing key in {home / 'keys'}, records in {home / 'records'})")
-    print(f"org: {connectors.connect().mode}  model: {os.environ.get('SHIO_IAM_MODEL', 'scripted')}")
-    print("next: shio-iam chat --as dan.okafor@northwind.example")
+    print(f"org: {connectors.connect().mode}  model: {os.environ.get('SHIO_GCP_IAM_MODEL', 'scripted')}")
+    print("next: shio-gcp-iam chat --as dan.okafor@northwind.example")
 
 
 def cmd_ask(args):
@@ -167,11 +167,11 @@ def cmd_doctor(args):
     print(f"org           {org.mode}" + (f" (org {getattr(org, 'org_id', '')})" if org.mode == "gcloud" else
                                            " (Northwind Labs sample org)"))
     print(f"gcloud        {'found' if shutil.which('gcloud') else 'not installed (only needed for a real org)'}")
-    print(f"model         {os.environ.get('SHIO_IAM_MODEL', 'scripted')}"
-          f"{'' if os.environ.get('SHIO_IAM_MODEL', 'scripted') != 'claude-cli' else ' (claude ' + ('found)' if shutil.which('claude') else 'NOT found)')}")
+    print(f"model         {os.environ.get('SHIO_GCP_IAM_MODEL', 'scripted')}"
+          f"{'' if os.environ.get('SHIO_GCP_IAM_MODEL', 'scripted') != 'claude-cli' else ' (claude ' + ('found)' if shutil.which('claude') else 'NOT found)')}")
     print(f"signing key   {os.environ.get('SHIO_SIGNING_KEY') or 'made on first run in ' + str(approvals.home() / 'keys')}")
     print(f"slack         {'live' if os.environ.get('SLACK_BOT_TOKEN') else 'mock (cards go to slack-outbox.jsonl)'}")
-    print(f"writes        {'ALLOWED to the real org' if os.environ.get('SHIO_IAM_ALLOW_APPLY') == '1' and org.mode == 'gcloud' else 'mock org only' if org.mode == 'mock' else 'off (read-only)'}")
+    print(f"writes        {'ALLOWED to the real org' if os.environ.get('SHIO_GCP_IAM_ALLOW_APPLY') == '1' and org.mode == 'gcloud' else 'mock org only' if org.mode == 'mock' else 'off (read-only)'}")
 
 
 def cmd_reset(args):
@@ -189,7 +189,7 @@ def cmd_slack(args):
 
 def cmd_chat(args):
     me = who(args)
-    print(f"{BOLD}shio-iam{END} as {me}, org: {connectors.connect().mode}. Ask in plain English; empty line to quit.")
+    print(f"{BOLD}shio-gcp-iam{END} as {me}, org: {connectors.connect().mode}. Ask in plain English; empty line to quit.")
     print(f"{DIM}Try: who can delete buckets in prod? | give Priya Raman read access to the billing dataset for two weeks"
           f" | remove everyone's Owner role except the break-glass account{END}")
     while True:
@@ -208,7 +208,7 @@ def cmd_chat(args):
                 break
             approver = input(f"Approver's email for {approvals.ROLE_GROUPS[needed[0]]} (empty to leave it pending): ").strip()
             if not approver:
-                print(f"left pending: shio-iam approve {Path(record).stem.split('-')[-1]} --as <approver>")
+                print(f"left pending: shio-gcp-iam approve {Path(record).stem.split('-')[-1]} --as <approver>")
                 break
             ok = input("Approve? [y/N/r=reject]: ").strip().lower()
             if ok not in ("y", "yes", "r"):
@@ -228,7 +228,7 @@ def cmd_chat(args):
 
 def main(argv=None):
     models.load_env()
-    p = argparse.ArgumentParser(prog="shio-iam", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(prog="shio-gcp-iam", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("init", help="set up a workspace here").set_defaults(fn=cmd_init)
     a = sub.add_parser("ask", help="ask a question or request a change")

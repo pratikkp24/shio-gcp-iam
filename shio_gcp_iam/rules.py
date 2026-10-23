@@ -208,7 +208,7 @@ def conditions_supported(org, resource):
 def expiry_condition(days, now):
     end = (now + dt.timedelta(days=days)).replace(microsecond=0).astimezone(dt.timezone.utc)
     stamp = end.strftime("%Y-%m-%dT%H:%M:%SZ")
-    return {"title": f"expires {end.strftime('%d %b %Y')}", "description": "time-bound access granted by shio-iam",
+    return {"title": f"expires {end.strftime('%d %b %Y')}", "description": "time-bound access granted by shio-gcp-iam",
             "expression": f'request.time < timestamp("{stamp}")'}
 
 

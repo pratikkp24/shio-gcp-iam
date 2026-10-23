@@ -14,9 +14,9 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(HERE))
-os.environ["SHIO_IAM_HOME"] = tempfile.mkdtemp()
+os.environ["SHIO_GCP_IAM_HOME"] = tempfile.mkdtemp()
 
-from shio_iam import connectors, engine, models, sample_org  # noqa: E402
+from shio_gcp_iam import connectors, engine, models, sample_org  # noqa: E402
 
 NOW = dt.datetime(2026, 10, 23, 9, 0, tzinfo=dt.timezone.utc)
 REQUESTER = "dan.okafor@northwind.example"
@@ -39,7 +39,7 @@ def run(request, llm, requester=REQUESTER):
 
 def main():
     honest = models.scripted()
-    requests = [c["request"] for c in json.loads((HERE / "shio_iam" / "scripted.json").read_text())]
+    requests = [c["request"] for c in json.loads((HERE / "shio_gcp_iam" / "scripted.json").read_text())]
     runs = {who: {r: run(r, honest, who) for r in requests} for who in PERSONAS}
     fooled = {who: {k: run(k, models.scripted(FOOLED, name="fooled"), who) for k in FOOLED} for who in PERSONAS}
     data = {"now": NOW.isoformat(), "requester": REQUESTER, "directory": sample_org.DIRECTORY,

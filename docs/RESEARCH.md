@@ -1,6 +1,6 @@
 # Google Cloud IAM: pain points and tool landscape
 
-Research note for shio-iam: a natural-language IAM agent where a model proposes a change, code checks decide whether it is safe, and a person approves before apply.
+Research note for shio-gcp-iam: a natural-language IAM agent where a model proposes a change, code checks decide whether it is safe, and a person approves before apply.
 
 **Conventions.** Every claim has its source next to it. All sources were accessed on **23 Oct 2026** unless a line says otherwise. Google docs now live at `docs.cloud.google.com`, and `cloud.google.com/iam/docs/...` returns a 301 redirect there. The Google IAM pages fetched show "Last updated 2026-10-20 UTC". **Unverified** means I could not find the claim at a primary source.
 

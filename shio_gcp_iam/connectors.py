@@ -1,6 +1,6 @@
 """Read-only views of a Google Cloud org, behind one interface, and the one write.
 
-    org = connect()                 # MockOrg unless SHIO_IAM_MODE=gcloud
+    org = connect()                 # MockOrg unless SHIO_GCP_IAM_MODE=gcloud
     org.directory()                 # people, groups, service accounts
     org.resources()                 # org, folders, projects, datasets, buckets, service accounts
     org.policy(resource)            # {"bindings": [...], "etag": "...", "version": 3}
@@ -237,19 +237,19 @@ class MockOrg(Org):
 class GcloudOrg(Org):
     """A real org, read with the `gcloud` CLI and the credentials it already holds. Nothing is stored.
 
-    SHIO_IAM_ORG: the organization id. SHIO_IAM_PROJECTS: optional comma-separated project ids to limit the scope.
-    SHIO_IAM_DIRECTORY: optional JSON file of people and groups ([{"email", "kind", "name", "members"}]); without it
+    SHIO_GCP_IAM_ORG: the organization id. SHIO_GCP_IAM_PROJECTS: optional comma-separated project ids to limit the scope.
+    SHIO_GCP_IAM_DIRECTORY: optional JSON file of people and groups ([{"email", "kind", "name", "members"}]); without it
     the directory is the principals already in the policies plus the service accounts gcloud lists, so a person who
     holds no role yet can't be found (the check fails closed and says so).
 
-    Writes need SHIO_IAM_ALLOW_APPLY=1 as well as an approved sign-off. Not yet tested against a live org.
+    Writes need SHIO_GCP_IAM_ALLOW_APPLY=1 as well as an approved sign-off. Not yet tested against a live org.
     """
     mode = "gcloud"
 
     def __init__(self, org_id=None, projects=None, now=None, runner=None):
         super().__init__(now)
-        self.org_id = org_id or os.environ.get("SHIO_IAM_ORG", "")
-        self.projects = projects or [p for p in os.environ.get("SHIO_IAM_PROJECTS", "").split(",") if p]
+        self.org_id = org_id or os.environ.get("SHIO_GCP_IAM_ORG", "")
+        self.projects = projects or [p for p in os.environ.get("SHIO_GCP_IAM_PROJECTS", "").split(",") if p]
         self.run = runner or self._gcloud
         self._cache = {}
 
@@ -317,7 +317,7 @@ class GcloudOrg(Org):
 
     def directory(self):
         def load():
-            path = os.environ.get("SHIO_IAM_DIRECTORY")
+            path = os.environ.get("SHIO_GCP_IAM_DIRECTORY")
             if path:
                 return json.loads(Path(path).read_text())
             seen = {}
@@ -402,8 +402,8 @@ class GcloudOrg(Org):
         return "other", resource
 
     def _write(self, resource, bindings, etag):
-        if os.environ.get("SHIO_IAM_ALLOW_APPLY") != "1":
-            raise ConnectorError("writing to a real org needs SHIO_IAM_ALLOW_APPLY=1 (as well as the approval)")
+        if os.environ.get("SHIO_GCP_IAM_ALLOW_APPLY") != "1":
+            raise ConnectorError("writing to a real org needs SHIO_GCP_IAM_ALLOW_APPLY=1 (as well as the approval)")
         import tempfile
         kind, ident = self._kind(resource)
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
@@ -429,14 +429,14 @@ _ORG = None
 
 
 def connect(reset=False):
-    """The org this process works on: SHIO_IAM_MODE=gcloud for a real one, otherwise the mock (state in
-    SHIO_IAM_HOME/org-state.json)."""
+    """The org this process works on: SHIO_GCP_IAM_MODE=gcloud for a real one, otherwise the mock (state in
+    SHIO_GCP_IAM_HOME/org-state.json)."""
     global _ORG
     if _ORG is None or reset:
-        if os.environ.get("SHIO_IAM_MODE") == "gcloud":
+        if os.environ.get("SHIO_GCP_IAM_MODE") == "gcloud":
             _ORG = GcloudOrg()
         else:
-            home = Path(os.environ.get("SHIO_IAM_HOME", ".shio-iam"))
+            home = Path(os.environ.get("SHIO_GCP_IAM_HOME", ".shio-gcp-iam"))
             _ORG = MockOrg(home / "org-state.json")
     return _ORG
 
