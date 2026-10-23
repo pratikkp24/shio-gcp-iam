@@ -157,19 +157,17 @@ pytest tests/test_cases.py -s        # prints the score table: 32/32
 - **The mock role catalogue is abridged:** about 20 real roles, each with a real subset of its permissions. For scale, Google's own docs say only "hundreds" of predefined roles. A dated third-party snapshot (iam-dataset, 18 Oct 2026) counts 2,422 predefined roles and 10,129 permissions. See [`docs/RESEARCH.md`](docs/RESEARCH.md).
 - **Conditions.** The only condition this tool writes or evaluates is `request.time < timestamp(...)`. Any other condition is treated as possibly granting, so answers may over-report and never under-report. Durations are counted in whole days.
 - **Resolving names.** Matching names in the request is word-based. Phrasing it doesn't know ("my team", "the finance bucket") fails closed with a reason. It never guesses.
-- **Shio's own open issues.** Shio's 1.0 security review has open findings in parts this tool uses:
-  - The ledger verifier accepts unsigned sign-off entries.
-  - Event entries are not fully chained.
-  - Guard's grounding of values is a substring match.
-  - Guard's four-eyes rule needs a requester to be passed in.
+- **Shio's security fixes.** Shio's 1.0 security review found issues in parts this tool uses, all fixed in Shio
+  1.0.0rc2, which shio-gcp-iam requires:
+  - The ledger verifier now refuses unsigned entries when checked against a key.
+  - Event entries now sign their place in the chain.
+  - Guard now grounds values by whole token, not by substring.
+  - Guard's four-eyes rule now applies by default.
 
-  shio-gcp-iam works around the ones it can:
-  - It accepts only sign-offs signed by the ledger key.
-  - It re-verifies the chain before every apply.
-  - It checks principals by exact match against the directory, not by Guard's grounding.
-  - It enforces four eyes through ledger maker-checker.
-
-  Don't treat the ledger or Guard as proven until those are fixed upstream. Anchor the ledger head (`shio-gcp-iam verify` prints it) somewhere the key holder can't rewrite.
+  shio-gcp-iam keeps its own safeguards as a second line: it accepts only sign-offs signed by the ledger key,
+  re-verifies the chain before every apply, checks principals by exact match against the directory, and enforces four
+  eyes through ledger maker-checker. Anchor the ledger head (`shio-gcp-iam verify` prints it) somewhere the key holder
+  can't rewrite.
 
 ## Files
 

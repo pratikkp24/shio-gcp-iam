@@ -127,7 +127,8 @@ def test_escalation_needs_a_security_admin_too(org):
 
 
 def test_an_unsigned_signoff_is_not_trusted(org):
-    """Shio's verifier accepts unsigned sign-off entries (open finding L1); shio-gcp-iam refuses them."""
+    """A forged, unsigned sign-off is refused. Since Shio 1.0.0rc2 its own verifier catches it (finding L1, fixed);
+    shio-gcp-iam's own check that sign-offs are signed by the ledger key stays as a second line."""
     record = Path(proposed(org))
     entries = ledger._entries(record.parent)
     rec_entry = next(e for e in entries if e.get("file") == record.name)
@@ -136,7 +137,7 @@ def test_an_unsigned_signoff_is_not_trusted(org):
     event["sha256"] = ledger.sha256({k: event[k] for k in ledger.SIGNOFF_FIELDS})
     ledger._append(record.parent, event, None)                         # appended with no signature
     out, _ = engine.apply(record)
-    assert out["action"] == "NOT APPLIED" and "unsigned" in out["why"][0], out
+    assert out["action"] == "NOT APPLIED" and "unsigned" in out["why"][0].lower(), out
     assert viewers(org) == []
 
 

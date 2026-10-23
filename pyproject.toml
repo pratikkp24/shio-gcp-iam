@@ -9,7 +9,7 @@ description = "Google Cloud IAM in plain English: a model reads the request, Shi
 readme = "README.md"
 license = {text = "Apache-2.0"}
 requires-python = ">=3.10"
-dependencies = ["shio-lang[regulated]>=1.0.0rc1"]
+dependencies = ["shio-lang[regulated]>=1.0.0rc2"]
 
 [project.optional-dependencies]
 slack = ["slack_sdk>=3.27"]
