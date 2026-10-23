@@ -25,6 +25,8 @@ Proposed change (dry run; nothing written yet)
 
 It runs with no Google Cloud account against **Northwind Labs**, a fictional org with folders, projects, datasets, buckets, service accounts and some risky bindings planted on purpose. It can also read a real org through your own `gcloud` login.
 
+**New here?** Read the step-by-step guide: [How to use Shio-GCP-IAM](docs/HOW-TO-USE.md) ([PDF](docs/Shio-GCP-IAM-How-to-use.pdf)).
+
 ## Try it (5 minutes, no cloud account)
 
 You need Python 3.10 or newer.
